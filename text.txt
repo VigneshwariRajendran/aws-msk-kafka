@@ -1,3 +1,63 @@
+
+ProcessBuilder processBuilder = new ProcessBuilder("cat", "/msk/input_json.json");
+            
+            // Start the process
+            Process process = processBuilder.start();
+            
+            // Read the output of the command
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                StringBuilder jsonMessageBuilder = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    jsonMessageBuilder.append(line);
+                }
+                
+                String jsonMessage = jsonMessageBuilder.toString();
+
+                // Optionally parse and validate the JSON
+                JsonNode jsonNode = objectMapper.readTree(jsonMessage);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "your-msk-broker:9098");
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "my-testgroup-id");

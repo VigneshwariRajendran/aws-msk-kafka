@@ -139,3 +139,25 @@ try {
             return null;
         }
     }
+------------------------------------------------------------------------------------------------------
+ private Map<String, String> extractFields(JsonNode jsonNode) {
+        try {
+            // Safely extract fields with null checks
+            String time = jsonNode.has("time") ? jsonNode.get("time").asText() : null;
+            String fiscorrelationid = jsonNode.has("fiscorrelationid") ? jsonNode.get("fiscorrelationid").asText() : null;
+
+            // Navigate to nested "evtNme"
+            JsonNode evtNmeNode = jsonNode.path("data").path("ad").path("evtNme");
+            String evtNme = evtNmeNode.isMissingNode() ? null : evtNmeNode.asText();
+
+            // Only return the map if all required fields are present
+            if (time != null && evtNme != null && fiscorrelationid != null) {
+                return Map.of("time", time, "evtNme", evtNme, "fiscorrelationid", fiscorrelationid);
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }

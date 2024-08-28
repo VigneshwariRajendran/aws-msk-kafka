@@ -60,39 +60,6 @@ try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(proce
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "your-msk-broker:9098");
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "my-testgroup-id");
@@ -187,3 +154,18 @@ try {
             return null;
         }
     }
+====================================================================================================================
+ // Convert grouped messages to JSON Array
+                ArrayNode jsonArray = objectMapper.createArrayNode();
+                groupedMessages.forEach((evtNme, group) -> {
+                    ObjectNode groupNode = objectMapper.createObjectNode();
+                    groupNode.put("evtNme", evtNme);
+                    groupNode.set("messages", objectMapper.valueToTree(group));
+                    jsonArray.add(groupNode);
+                });
+
+                // Write JSON Array to file
+                File file = new File("/root/output.json");
+                objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, jsonArray);
+
+                System.out.println("Processed JSON data written to /root/output.json");

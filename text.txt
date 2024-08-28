@@ -26,7 +26,33 @@ try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(proce
                     System.err.println("Error output from process: " + errorMessage);
                 }
             }
+====================================================================================================================
+ if (rootNode.isArray()) {
+                List<JsonNode> messages = rootNode.findValuesAsText("data").stream().map(node -> node.asText()).collect(Collectors.toList());
 
+                // Extract and process the required fields
+                List<Map<String, String>> processedMessages = messages.stream()
+                        .map(this::extractFields)
+                        .filter(java.util.Objects::nonNull)
+                        .sorted((m1, m2) -> m1.get("time").compareTo(m2.get("time")))
+                        .collect(Collectors.toList());
+
+                // Group messages by evtNme
+                Map<String, List<Map<String, String>>> groupedMessages = processedMessages.stream()
+                        .collect(Collectors.groupingBy(m -> m.get("evtNme")));
+
+                // Process grouped messages as needed
+                groupedMessages.forEach((evtNme, group) -> {
+                    System.out.println("Event Name: " + evtNme);
+                    group.forEach(message -> {
+                        System.out.println("Time: " + message.get("time"));
+                        System.out.println("Fiscorrelationid: " + message.get("fiscorrelationid"));
+                        // Add any additional processing here
+                    });
+                });
+            } else {
+                System.out.println("Received message is not a JSON array.");
+            }
 
 
 

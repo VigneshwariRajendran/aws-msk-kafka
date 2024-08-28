@@ -84,3 +84,58 @@ Properties props = new Properties();
             }
         }
     }
+-----------------------------------------------------------------------------------------------------------------------------------------
+try {
+            // Convert the message to JsonNode
+            JsonNode rootNode = objectMapper.readTree(record.value());
+
+            // Check if the root node is an array (for multiple JSON objects in a single message)
+            List<JsonNode> messages;
+            if (rootNode.isArray()) {
+                messages = new ArrayList<>();
+                rootNode.forEach(messages::add);
+            } else {
+                // If not an array, treat the single message as a list of one
+                messages = List.of(rootNode);
+            }
+
+            // Extract and process the required fields
+            List<Map<String, String>> processedMessages = messages.stream()
+                    .map(this::extractFields)
+                    .filter(java.util.Objects::nonNull)
+                    .sorted(Comparator.comparing(m -> m.get("time")))
+                    .collect(Collectors.toList());
+
+            // Group messages by evtNme
+            Map<String, List<Map<String, String>>> groupedMessages = processedMessages.stream()
+                    .collect(Collectors.groupingBy(m -> m.get("evtNme")));
+
+            // Process grouped messages as needed
+            groupedMessages.forEach((evtNme, group) -> {
+                System.out.println("Event Name: " + evtNme);
+                group.forEach(message -> {
+                    System.out.println("Time: " + message.get("time"));
+                    System.out.println("Fiscorrelationid: " + message.get("fiscorrelationid"));
+                    // Add any additional processing here
+                });
+            });
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Handle exceptions such as JSON parsing errors
+        }
+    }
+
+    // Helper method to extract the required fields from the JSON
+    private Map<String, String> extractFields(JsonNode jsonNode) {
+        try {
+            String time = jsonNode.get("time").asText();
+            String evtNme = jsonNode.get("evtNme").asText();
+            String fiscorrelationid = jsonNode.get("fiscorrelationid").asText();
+
+            return Map.of("time", time, "evtNme", evtNme, "fiscorrelationid", fiscorrelationid);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
